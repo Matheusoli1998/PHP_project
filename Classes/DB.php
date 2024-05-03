@@ -37,7 +37,7 @@
             $query = "SELECT $cols FROM $tableName";
             $result = $this->db_connect->query($query);
 
-            return $result;
+            return $result->fetch_all(MYSQLI_ASSOC);
         }
 
         function select($tableName,$col,$value, $columNames=null){
@@ -51,6 +51,7 @@
         function insert($tableName, $data, $columNames){
             $fields = isset($columNames) ? "(".implode(" , ",$columNames).")" : "";
             $dataType = getDataType($data);
+
             $valuesCount = array_map(function(){ return "?"; },$data);
             $valuesCount = implode(",",$valuesCount);
 
@@ -67,7 +68,9 @@
         }
 
         function updateValue($tableName,$id,$idColName,$col,$value){
-            $query = "UPDATE $tableName SET $col = $value WHERE $idColName = $id";
+            // $query = "UPDATE $tableName SET $col = $value WHERE $idColName = $id";
+            $query = $this->db_connect->prepare("UPDATE user_tb SET col1 = ?, col2 = ?  WHERE id = 1");
+            $query->bind_param('ss', 'test','test');
             if($this->db_connect->query($query) === TRUE){
                 generateAudit("update","success","user update",$_POST["email"]);
                 return true;

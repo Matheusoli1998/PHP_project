@@ -4,22 +4,28 @@
     require('./Classes/Cats.php');
     require('./Classes/User.php');
     require('./Classes/Menu.php');
+    require('./Classes/File.php');
     require('./Functions.php');
 
     header("Access-Control-Allow-Origin: *");
     header('Access-Control-Allow-Credentials: true');
-    header("Access-Control-Allow-Methods: PUT, GET, POST");
+    header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE");
     header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
     
     try {
+        if(!isset($_SERVER['PATH_INFO'])){
+            throw new Exception("No path found", 404);
+        } 
+        
         switch($_SERVER["REQUEST_METHOD"]){
             case "GET":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/getCats':
-                        // gets cats information from database
+                        // get all cats from cats_tb
                         Cats::getCatsList();
                         break;
                     case '/getProducts':
+                        // get all products from menu_tb
                         Menu::getMenuList();
                         break;
                     case '/whishlist':
@@ -30,10 +36,8 @@
                         // gets user cart
                         // keys: user id
                         break;
-                    
                     default:
-                        // throw path doesn't exist
-                        break;
+                        throw new Exception("No path found", 404);
                 }
                 break;
             case "POST":
@@ -49,12 +53,26 @@
                         // keys: $email, $pass, $username
                         break;
                     case '/addCat':
-                        // add new cat to database
-                        // keys: $catImage, $catName, $catBreed, $catAge, $catDescription, $adoptionStatus default Available, $favorite(boolean)
+                        // check if all the information to create a cats object was sent
+                        check_key(['catName','cataAge','catBreed','catDescription','adoptionStatus'],$_POST);
+                        check_key(['catImage'],$_FILES);
+
+                        // creates Cats object with all the keys sent on request
+                        $cat = new Cats($_POST);
+
+                        // send cats object to database
+                        $cat->addCatToDataBase($_FILES['catImage']);
                         break;
                     case '/addProduct':
-                        // add new product to database
-                        // keys: $img, $name, $description, $value
+                         // check if all the information to create a menu object was sent
+                         check_key(['menuName','menuPrice','menuCategory','menuDescription'],$_POST);
+                         check_Key(['menuImage'],$_FILES);
+                        
+                         // creates menu object with all the keys sent on request
+                        $product = new Menu($_POST);
+
+                        // send menu object to database
+                        $product->addProductToDataBase($_FILES['menuImage']);
                         break;
                     case '/saveCart':
                         // save user cart to database
@@ -80,10 +98,10 @@
                         $dbObj->db_close();
                         break;
                     default:
-                    // throw path doesn't exist
+                        throw new Exception("No path found", 404);
                 }
             break;
-            case "PATCH":
+            case "PUT":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/editCat':
                         // edit cat in database
@@ -98,7 +116,7 @@
                         // keys: cat$id user$id
                         break;
                     default:
-                        // throw path doesn't exist
+                    throw new Exception("No path found", 404);
                 }
             break;
             case "DELETE":
@@ -112,11 +130,11 @@
                         // keys: product $id
                         break;
                     default:
-                        // throw path doesn't exist
+                        throw new Exception("No path found", 404);
                 }
             break;
             default:
-            // throw method not allowed
+                throw new Exception("Method not allowed", 405);
         }
     } catch(Exception $err){
         sendHttp_Code($err->getMessage(),$err->getCode());

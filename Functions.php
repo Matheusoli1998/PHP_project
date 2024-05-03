@@ -1,5 +1,13 @@
 <?php
 
+    function check_key($keys,$sourceData){
+        foreach($keys as $key){
+            if(!array_key_exists($key,$sourceData)){
+                throw new Exception("Missing information",400);
+            }
+        }
+    }
+
     function sendHttp_Code($msg,$code,$die_flag = false){
         // send http code and message as response
         http_response_code($code);
@@ -14,18 +22,19 @@
         $dataType = "";
 
         foreach($data as $value){
-            if(gettype($value) == 'string'){
-                $dataType = $dataType."s";
-            }
-            else if(gettype($value) == 'int'){
-                $dataType = $dataType."i";
-            }
-            else if(gettype($value) == 'float'){
-                $dataType = $dataType."d";
-            }
-            else {
-                $dataType = $dataType."b";
-            }
+            $dataType = $dataType.gettype($value)[0];
+            // if(gettype($value) == 'string'){
+            //     $dataType = $dataType."s";
+            // }
+            // else if(gettype($value) == 'int'){
+            //     $dataType = $dataType."i";
+            // }
+            // else if(gettype($value) == 'float'){
+            //     $dataType = $dataType."d";
+            // }
+            // else {
+            //     $dataType = $dataType."b";
+            // }
         };
 
         return $dataType;

@@ -6,4 +6,6 @@
     define("DB_USER", "catCafe");
     define("DB_PASSWORD", "webdev12345");
     define("DB_NAME", "cat_cafe_tb");
+    define("BACKEND_PICTURES_PATH", "appFiles");
+    define("MAX_FILE_SIZE", 500000);
 ?>
