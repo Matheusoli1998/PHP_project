@@ -55,8 +55,6 @@
             case "POST":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/login':
-                        // User::login();
-                        // print_r($_POST['email']);
                         // login if exist (check email and password)
                         // keys: $email, $pass
                         check_key(["email", "pass"],$_POST);
@@ -70,54 +68,78 @@
                         // keys: $email, $pass, $username
                         break;
                     case '/addCat':
-                        // check if all the information to create a cats object was sent
-                        check_key(['catName','cataAge','catBreed','catDescription','adoptionStatus'],$_POST);
-                        check_key(['catImage'],$_FILES);
+                        $userCredentials = getUserCredentials($_POST);
+                            if($userCredentials === null || $userCredentials !== 'admin'){
+                                throw new Exception("Unauthorized",401);
 
-                        // creates Cats object with all the keys sent on request
-                        $cat = new Cats($_POST);
+                            } else {
+                            // check if all the information to create a cats object was sent
+                            check_key(['catName','cataAge','catBreed','catDescription','adoptionStatus'],$_POST);
+                            check_key(['catImage'],$_FILES);
 
-                        // send cats object to database
-                        $cat->addCatToDataBase($_FILES['catImage']);
+                            // creates Cats object with all the keys sent on request
+                            $cat = new Cats($_POST);
+
+                            // send cats object to database
+                            $cat->addCatToDataBase($_FILES['catImage']);
+                        }
                         break;
                     case '/addProduct':
-                         // check if all the information to create a menu object was sent
-                         check_key(['menuName','menuPrice','menuCategory','menuDescription'],$_POST);
-                         check_Key(['menuImage'],$_FILES);
-                        
-                         // creates menu object with all the keys sent on request
-                        $product = new Menu($_POST);
+                        $userCredentials = getUserCredentials($_POST);
+                        if($userCredentials === null || $userCredentials !== 'admin'){
+                            throw new Exception("Unauthorized",401);
 
-                        // send menu object to database
-                        $product->addProductToDataBase($_FILES['menuImage']);
+                        } else {
+                            // check if all the information to create a menu object was sent
+                            check_key(['menuName','menuPrice','menuCategory','menuDescription'],$_POST);
+                            check_Key(['menuImage'],$_FILES);
+                            
+                            // creates menu object with all the keys sent on request
+                            $product = new Menu($_POST);
+
+                            // send menu object to database
+                            $product->addProductToDataBase($_FILES['menuImage']);
+                        }
                         break;
                     case '/editProduct':
-                        // check if all the information to update object was sent
-                        check_key(['mid','menuName','menuPrice','menuCategory','menuDescription'],$_POST);
+                        $userCredentials = getUserCredentials($_POST);
+                        if($userCredentials === null || $userCredentials !== 'admin'){
+                            throw new Exception("Unauthorized",401);
 
-                        // creates menu object with all the keys sent on request
-                        $product = new Menu($_POST);
-                        
-                        // check if file was sent on the request and if the file data is empty
-                        $file = $_FILES['menuImage'];
-                        $file = $file['name'] === '' && $file['size'] === 0 ? null : $file;
+                        } else {
+                            // check if all the information to update object was sent
+                            check_key(['mid','menuName','menuPrice','menuCategory','menuDescription'],$_POST);
 
-                        // send edit request to database
-                        $product->editProduct($_POST['mid'], $file);
+                            // creates menu object with all the keys sent on request
+                            $product = new Menu($_POST);
+                            
+                            // check if file was sent on the request and if the file data is empty
+                            $file = $_FILES['menuImage'];
+                            $file = $file['name'] === '' && $file['size'] === 0 ? null : $file;
+
+                            // send edit request to database
+                            $product->editProduct($_POST['mid'], $file);
+                        }
                         break;
                     case '/editCat':
-                        // check if all the information to update object was sent
-                        check_key(['cid','catName','cataAge','catBreed','catDescription','adoptionStatus'],$_POST);
+                        $userCredentials = getUserCredentials($_POST);
+                        if($userCredentials === null || $userCredentials !== 'admin'){
+                            throw new Exception("Unauthorized",401);
 
-                        // creates menu object with all the keys sent on request
-                        $cat = new Cats($_POST);
-                        
-                        // check if file was sent on the request and if the file data is empty
-                        $file = $_FILES['catImage'];
-                        $file = $file['name'] === '' && $file['size'] === 0 ? null : $file;
-
-                        // send edit request to database
-                        $cat->editCat($_POST['cid'], $file);
+                        } else {
+                            // check if all the information to update object was sent
+                            check_key(['cid','catName','cataAge','catBreed','catDescription','adoptionStatus'],$_POST);
+    
+                            // creates menu object with all the keys sent on request
+                            $cat = new Cats($_POST);
+                            
+                            // check if file was sent on the request and if the file data is empty
+                            $file = $_FILES['catImage'];
+                            $file = $file['name'] === '' && $file['size'] === 0 ? null : $file;
+    
+                            // send edit request to database
+                            $cat->editCat($_POST['cid'], $file);
+                        }
                         break;
                     case '/saveCart':
                         // save user cart to database
@@ -148,14 +170,28 @@
             case "DELETE":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/removeCat':
-                        check_key(['id'],$_REQUEST);
-                        Cats::deleteCat($_REQUEST['id']);
-                        sendHttp_Code('Cat Deleted Successfully',200);
+                        $userCredentials = getUserCredentials($_REQUEST);
+                        if($userCredentials === null || $userCredentials !== 'admin'){
+                            throw new Exception("Unauthorized",401);
+
+                        } else {
+                            check_key(['id'],$_REQUEST);
+                            Cats::deleteCat($_REQUEST['id']);
+                            sendHttp_Code('Cat Deleted Successfully',200);
+                        }
+
                         break;
                     case '/removeProduct':
-                        check_key(['id'],$_REQUEST);
-                        Menu::deleteProduct($_REQUEST['id']);
-                        sendHttp_Code('Product Deleted Successfully',200);
+                        $userCredentials = getUserCredentials($_REQUEST);
+                        if($userCredentials === null || $userCredentials !== 'admin'){
+                            throw new Exception("Unauthorized",401);
+                            
+                        } else {
+                            check_key(['id'],$_REQUEST);
+                            Menu::deleteProduct($_REQUEST['id']);
+                            sendHttp_Code('Product Deleted Successfully',200);
+                        }
+                        
                     break;
                     default:
                         throw new Exception("No path found", 404);

@@ -12,19 +12,12 @@
             $this->email = $email;
         }
 
+        public function getType()
+        {
+            return $this->type;
+        }
 
         function login($pass){
-            header('Content-Type: application/json');
-            // session_start();
-            // print_r(json_encode([
-            //     "sid"=>session_id(),
-            //     "username"=> "user",
-            //     "type"=> "admin",
-            //     "email"=>"admin@gmail.com",
-            //     "id"=>1
-            // ]));
-            
-
             $db_connection= new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
             $dbCon=$db_connection->connect();
             $data = $dbCon->prepare("SELECT * FROM users_tb WHERE email = ?");
@@ -32,12 +25,9 @@
             $data->execute();
 
             $result = $data->get_result();
-           // print_r($result);
 
             if($result->num_rows > 0){
                 $row = $result->fetch_assoc(); // user data
-                // print_r($row);
-               //echo json_encode($row);
 
                 if(password_verify($pass,$row['pass'])){ //check pwd
                     $this->setupUserSession($row);
@@ -51,17 +41,13 @@
                             "type" => $this->type,
                         ]
                         );
-     
-
-          
-                   
 
                 }else{
-                    throw new Exception("Invalid credentials provided.");
+                    throw new Exception("Invalid credentials provided.", 400);
                 }
 
             }else{
-                throw new Exception("No user found with that email address.");
+                throw new Exception("No user found with that email address.", 404);
             }
 
             $dbCon->close();

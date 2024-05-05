@@ -23,21 +23,32 @@
 
         foreach($data as $value){
             $dataType = $dataType.gettype($value)[0];
-            // if(gettype($value) == 'string'){
-            //     $dataType = $dataType."s";
-            // }
-            // else if(gettype($value) == 'int'){
-            //     $dataType = $dataType."i";
-            // }
-            // else if(gettype($value) == 'float'){
-            //     $dataType = $dataType."d";
-            // }
-            // else {
-            //     $dataType = $dataType."b";
-            // }
         };
 
         return $dataType;
+    }
+
+    function Session_Hanlder($sid){
+        session_id($sid);
+        session_start();
+        if(isset($_SESSION["time_out"]) && $_SESSION["time_out"] > time()){
+            $_SESSION["time_out"] = time() + TIME_OUT;
+        }else{
+            session_unset();
+            session_destroy();
+            throw new Exception("Session timed out/does not exist. Login again",400);
+        }
+    }
+
+    function getUserCredentials($request){
+        if(isset($request["sid"])){
+            Session_Hanlder($request["sid"]);
+        }else{
+            throw new Exception("You need to login to perform this action", 401);
+        }
+        $user = $_SESSION["login_user"];
+        return $user->getType();
+
     }
 
     function generateAudit($eventType,$outcome,$desc,$userEmail=null){
