@@ -7,10 +7,10 @@
     require('./Classes/File.php');
     require('./Functions.php');
 
-    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Origin: http://localhost:3000");
     header('Access-Control-Allow-Credentials: true');
-    header("Access-Control-Allow-Methods: PUT, GET, POST, DELETE");
-    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+    header("Access-Control-Allow-Methods: OPTIONS, GET, POST, DELETE");
+    header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
     
     try {
         if(!isset($_SERVER['PATH_INFO'])){
@@ -18,6 +18,9 @@
         } 
         
         switch($_SERVER["REQUEST_METHOD"]){
+            case "OPTIONS":
+                http_response_code(204);
+            break;
             case "GET":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/getCats':
@@ -27,6 +30,14 @@
                     case '/getProducts':
                         // get all products from menu_tb
                         Menu::getMenuList();
+                        break;
+                    case '/searchProduct':
+                        check_key(['id'],$_GET);
+                        Menu::searchMenu($_GET['id']);
+                        break;
+                    case '/searchCat':
+                        check_key(['id'],$_GET);
+                        Cats::searchCat($_GET['id']);
                         break;
                     case '/whishlist':
                         // gets user wishlist
@@ -39,6 +50,7 @@
                     default:
                         throw new Exception("No path found", 404);
                 }
+            
                 break;
             case "POST":
                 switch ($_SERVER['PATH_INFO']) {
@@ -74,6 +86,34 @@
                         // send menu object to database
                         $product->addProductToDataBase($_FILES['menuImage']);
                         break;
+                    case '/editProduct':
+                        // check if all the information to update object was sent
+                        check_key(['mid','menuName','menuPrice','menuCategory','menuDescription'],$_POST);
+
+                        // creates menu object with all the keys sent on request
+                        $product = new Menu($_POST);
+                        
+                        // check if file was sent on the request and if the file data is empty
+                        $file = $_FILES['menuImage'];
+                        $file = $file['name'] === '' && $file['size'] === 0 ? null : $file;
+
+                        // send edit request to database
+                        $product->editProduct($_POST['mid'], $file);
+                        break;
+                    case '/editCat':
+                        // check if all the information to update object was sent
+                        check_key(['cid','catName','cataAge','catBreed','catDescription','adoptionStatus'],$_POST);
+
+                        // creates menu object with all the keys sent on request
+                        $cat = new Cats($_POST);
+                        
+                        // check if file was sent on the request and if the file data is empty
+                        $file = $_FILES['catImage'];
+                        $file = $file['name'] === '' && $file['size'] === 0 ? null : $file;
+
+                        // send edit request to database
+                        $cat->editCat($_POST['cid'], $file);
+                        break;
                     case '/saveCart':
                         // save user cart to database
                         // keys: array of products
@@ -93,7 +133,6 @@
                     case '/importUsers':
                         $dbObj = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
                         $dbObj->connect();
-                        // throw new Exception('ON PATH',400);
                         $dbObj->importUsersJson();
                         $dbObj->db_close();
                         break;
@@ -101,34 +140,18 @@
                         throw new Exception("No path found", 404);
                 }
             break;
-            case "PUT":
-                switch ($_SERVER['PATH_INFO']) {
-                    case '/editCat':
-                        // edit cat in database
-                        // keys: cat $newData with cat $id
-                        break;
-                    case '/editProduct':
-                        // edit product in database
-                        // keys: product $newData with product $id
-                        break;
-                    case '/favorite':
-                        // edit user favorite whishlist
-                        // keys: cat$id user$id
-                        break;
-                    default:
-                    throw new Exception("No path found", 404);
-                }
-            break;
             case "DELETE":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/removeCat':
-                        // remove cat from database
-                        // keys: product $id
+                        check_key(['id'],$_REQUEST);
+                        Cats::deleteCat($_REQUEST['id']);
+                        sendHttp_Code('Cat Deleted Successfully',200);
                         break;
                     case '/removeProduct':
-                        // remove product from database
-                        // keys: product $id
-                        break;
+                        check_key(['id'],$_REQUEST);
+                        Menu::deleteProduct($_REQUEST['id']);
+                        sendHttp_Code('Product Deleted Successfully',200);
+                    break;
                     default:
                         throw new Exception("No path found", 404);
                 }

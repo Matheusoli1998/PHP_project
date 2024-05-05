@@ -27,6 +27,33 @@
             print_r(json_encode($data));
         }
 
+        static public function searchCat($id){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+            $data = $db_connexion->select('cats_tb','cid',$id);
+            $db_connexion->db_close();
+
+            if($data === null || count($data) === 0){
+                throw new Exception('No cat found with id provided', 404);
+            } else{
+                http_response_code(200);
+                print_r(json_encode($data));
+            }
+        }
+
+        static public function deleteCat($id){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+            $data = $db_connexion->select('cats_tb','cid',$id);
+            
+            if($data === null || count($data) === 0){
+                throw new Exception('No cat found with id provided', 404);
+            }
+            
+            $db_connexion->delete('cats_tb','cid',$id);
+            $db_connexion->db_close();
+        }
+
         function addCatToDataBase($file){
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
             $db_connexion->connect();
@@ -47,6 +74,36 @@
             );
             $db_connexion->db_close();
             sendHttp_Code('Cat Added to database Successfully',201);
+        }
+
+        function editCat($id,$file=null){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+            
+            $cat = $db_connexion->select('cats_tb','cid',$id);
+            if($cat === null || count($cat) === 0){
+                throw new Exception("Cat with cid $id not found",404);
+            }
+
+            $cols = [
+                'catName'=>$this->catName,
+                'cataAge'=>$this->catAge,
+                'catBreed'=>$this->catBreed,
+                'catDescription'=>$this->catDescription,
+                'adoptionStatus'=>$this->adoptionStatus
+
+            ];
+            
+            if($file){
+                $this->catImage = new File($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
+                $this->catImage = $this->catImage->uploadFile();
+                $cols['catImage'] = $this->catImage;
+            }
+            
+            $db_connexion->updateMultiple('cats_tb', $id,'cid',$cols);
+
+            $db_connexion->db_close();
+            sendHttp_Code('Cat Edit Successfully',200);
         }
 
     }

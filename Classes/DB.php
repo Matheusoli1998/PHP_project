@@ -36,16 +36,26 @@
             $cols = isset($colNames) ? implode(" , ",$colNames) : '*';
             $query = "SELECT $cols FROM $tableName";
             $result = $this->db_connect->query($query);
-
-            return $result->fetch_all(MYSQLI_ASSOC);
+            if($result){
+                // audit
+                return $result->fetch_all(MYSQLI_ASSOC);
+            } else {
+                // audit
+                throw new Exception('Unable to get data',500);
+            }
         }
 
         function select($tableName,$col,$value, $columNames=null){
             $cols = isset($columNames) ? implode(" , ",$columNames) : '*';
             $query = "SELECT $cols FROM $tableName WHERE $col = $value";
             $result = $this->db_connect->query($query);
-
-            return $result;
+            if($result){
+                // audit
+                return $result->fetch_assoc();
+            } else {
+                // audit
+                throw new Exception('Unable to get data',500);
+            }
         }
 
         function insert($tableName, $data, $columNames){
@@ -56,37 +66,73 @@
             $valuesCount = implode(",",$valuesCount);
 
             $insertCmd = $this->db_connect->prepare("INSERT INTO $tableName $fields VALUES ($valuesCount)");
+            if($insertCmd === false){
+                throw new Exception("Query Error",500);
+            }
+            
             $insertCmd->bind_param($dataType, ...$data);
 
             if($insertCmd->execute() === TRUE){
-                // generateAudit("register","success","registration to database");
+                // audit
                 return true;
             }else{
-                // generateAudit("register","failed","registration to database unsuccessfull");
+                // audit
                 throw new Exception("Insert Data Error",500);
             }
         }
 
         function updateValue($tableName,$id,$idColName,$col,$value){
-            // $query = "UPDATE $tableName SET $col = $value WHERE $idColName = $id";
-            $query = $this->db_connect->prepare("UPDATE user_tb SET col1 = ?, col2 = ?  WHERE id = 1");
-            $query->bind_param('ss', 'test','test');
-            if($this->db_connect->query($query) === TRUE){
-                generateAudit("update","success","user update",$_POST["email"]);
+            $dataType = getDataType([$value]);
+
+            $insertCmd = $this->db_connect->prepare("UPDATE $tableName SET $col = ? WHERE $idColName = $id");
+            if($insertCmd === false){
+                throw new Exception("Query Error",500);
+            }
+
+            $insertCmd->bind_param($dataType, $value);
+
+            if($insertCmd->execute() === TRUE){
+                // audit
                 return true;
             }else{
-                generateAudit("update","failed","user not updated",$_POST["email"]);
+                // audit
                 throw new Exception("Update Data Error",500);
             }
         }
 
-        // function updateMultipleValue($tableName,$id,$idColName,){
-        //     $cols = 
-        //     $query = "UPDATE $tableName SET $cols WHERE $idColName = $id";
-        // }
+        function updateMultiple($tableName,$id,$idColName,$cols){
+            $colsValues = [];
+            $values = [];
 
-        function delete(){
-            
+            foreach($cols as $colName => $value){
+                array_push($values,$value);
+                array_push($colsValues, "$colName = ?");
+            }
+            $colsValues = implode(" , ",$colsValues);
+            $dataType = getDataType($values);
+
+            $insertCmd = $this->db_connect->prepare("UPDATE $tableName SET $colsValues WHERE $idColName = $id");
+            $insertCmd->bind_param($dataType, ...$values);
+
+            if($insertCmd->execute() === TRUE){
+                // audit
+                return true;
+            }else{
+                // audit
+                throw new Exception("Update Data Error",500);
+            }
+        }
+
+        function delete($tableName,$idColName,$id){
+            $query = "DELETE FROM $tableName WHERE $idColName = $id";
+            if($this->db_connect->query($query)){
+                // audit
+                return true;
+            }else{
+                // audit
+                throw new Exception("Unable to Delete Data",500);
+            }
+
         }
 
         function importCatsJson(){
@@ -148,15 +194,13 @@
                     "'".$row->id."'"
                 );
                 if($rowValue->num_rows === 0){
-                    print_r($row);
                     $hashPass = password_hash($row->pass,PASSWORD_BCRYPT,["cost"=>10]);
-                    $type = array_key_exists('type',$row) ? $row->type : 'customer';
+                    $type = $row->type ? $row->type : 'customer';
                     $this->insert(
                         'users_tb',
                         [$row->id,$row->username,$hashPass,$row->email,$type],
                         ['id','username','pass','email','type']
                     );
-                    
                 }
             }
         }
