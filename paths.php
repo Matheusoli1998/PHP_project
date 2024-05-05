@@ -55,10 +55,15 @@
             case "POST":
                 switch ($_SERVER['PATH_INFO']) {
                     case '/login':
-                        User::login();
+                        // User::login();
                         // print_r($_POST['email']);
                         // login if exist (check email and password)
                         // keys: $email, $pass
+                        check_key(["email", "pass"],$_POST);
+                        $userObj = new User($_POST["email"]);
+                        // keys: $email, $pass
+                        echo $userObj->login($_POST["pass"]);
+                        
                         break;
                     case '/register':
                         // register user (name, hash password, default type customer)
