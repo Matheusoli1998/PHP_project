@@ -53,6 +53,39 @@
             $dbCon->close();
         }
 
+        function register($email,$username,$pass){
+            $db_connection= new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $dbCon=$db_connection->connect();
+            $data = $dbCon->prepare("SELECT * FROM users_tb WHERE email = ?");
+            $data->bind_param("s",$email);
+            $data->execute();
+            $result = $data->get_result();
+
+
+            if($result->num_rows>0){
+                $data->close();
+                //Audit_generator("registeration","Failed","User eamil already exists!");// Log the event
+                throw new Exception("Registration Failed: Email already exists", 406);
+            }
+
+            // Hash the password securely
+            $hashedPass = password_hash($pass,PASSWORD_BCRYPT,["cost"=>10]);
+
+            $insertCmd = $dbCon->prepare("INSERT INTO users_tb (username,pass,email) VALUES (?,?,?);");
+            $insertCmd->bind_param("sss",$_POST['username'],$hashedPass, $_POST['email']);
+
+     
+            $insertCmd->execute();
+
+            $insertCmd->close();
+            $db_connection->db_close();
+            
+     
+
+
+
+        }
+
         private function setupUserSession($row) {
             $this->email = $row['email'];
             $this->username = $row['username'];
