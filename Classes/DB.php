@@ -58,6 +58,22 @@
             }
         }
 
+        function selectJoin($left_table,$joinTable, $joinCol, $value, $joins, $columNames=null){
+            $cols = isset($columNames) ? implode(" , ",$columNames) : '*';
+            $joins = implode(" ", $joins);
+
+            $query = "SELECT $cols FROM $left_table $joins WHERE $joinTable.$joinCol = $value";
+            
+            $result = $this->db_connect->query($query);
+            
+            if($result->num_rows === 0){
+                // throw new Exception('Nothing found',404);
+                return null;
+            }
+
+            return $result->fetch_all(MYSQLI_ASSOC);       
+        }
+
         function insert($tableName, $data, $columNames){
             $fields = isset($columNames) ? "(".implode(" , ",$columNames).")" : "";
             $dataType = getDataType($data);

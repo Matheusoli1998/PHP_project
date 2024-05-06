@@ -5,6 +5,7 @@
     require('./Classes/User.php');
     require('./Classes/Menu.php');
     require('./Classes/File.php');
+    require('./Classes/Cart.php');
     require('./Functions.php');
 
     header("Access-Control-Allow-Origin: http://localhost:3000");
@@ -44,8 +45,10 @@
                         // keys: user id
                         break;
                     case '/cart':
-                        // gets user cart
-                        // keys: user id
+                        check_key(['uid'], $_GET);
+                        getUserCredentials($_GET);
+                        $cart = new Cart($_GET['uid']);
+                        $cart->getCartItems();
                         break;
                     default:
                         throw new Exception("No path found", 404);
@@ -65,6 +68,9 @@
                         break;
                     case '/register':
                         // register user (name, hash password, default type customer)
+                        check_key(["username","email", "pass"],$_POST);
+                        $userObj = new User($_POST["email"]); 
+                        echo $userObj->register($_POST["email"],$_POST["username"],$_POST["pass"]);
                         // keys: $email, $pass, $username
                         break;
                     case '/addCat':
@@ -100,6 +106,12 @@
                             // send menu object to database
                             $product->addProductToDataBase($_FILES['menuImage']);
                         }
+                        break;
+                    case '/addCartItem':
+                        check_key(['uid'], $_POST);
+                        getUserCredentials($_POST);
+                        $cart = new Cart($_POST['uid']);
+                        $cart->addCartItem($_POST);
                         break;
                     case '/editProduct':
                         $userCredentials = getUserCredentials($_POST);
@@ -193,6 +205,12 @@
                         }
                         
                     break;
+                    case '/resetCart':
+                        getUserCredentials($_REQUEST);
+                        check_key(['uid'],$_REQUEST);
+                        $cart = new Cart($_REQUEST['uid']);
+                        $cart->resetCart();
+                        break;
                     default:
                         throw new Exception("No path found", 404);
                 }
