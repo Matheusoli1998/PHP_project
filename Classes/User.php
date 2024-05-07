@@ -31,13 +31,14 @@
                 
 
                 if ($row['attempt'] == 0) { //The attempt field from the row is stored in $attempt.
-                    //Audit_generator("login", "failed", "User account locked.", $this->email);
+                    Audit_generator("login", "failed", "User account locked.", $this->email);
                     //check the associated array data in $row[attempt] if equal 0, than this account locked
                     throw new Exception("There is a problem logging in, please contact the system admin.", 401);
                 }
 
                 if(password_verify($pass,$row['pass'])){ //check pwd
                     $this->setupUserSession($row);
+                    Audit_generator("login", "success", "User login via password.", $this->email);
                     echo json_encode(
                         [
                             "sid" => session_id(),
@@ -49,12 +50,14 @@
                         ]
                         );
 
+
                 }else{
                      //If the passwords do not match, the attempt is decremented by 1 and the $loginFlag is set to "pass".
                     $newAttempt = $row['attempt'] - 1;
                     $updateCmd = $dbCon->prepare("UPDATE users_tb SET attempt = ? WHERE email = ?");
                     $updateCmd->bind_param("is",$newAttempt,$this->email);
                     $updateCmd->execute();
+                    Audit_generator("login", "failed", "Invalid password. Attempts(" . $newAttempt . ")", $this->email);
                     $updateCmd->close();
                     //AUDIT generator
                     throw new Exception("Username/Password Wrong.", 401);
@@ -67,16 +70,16 @@
 
                     switch($loginFlag){
                         case "email":
-                            //Audit_generator("login", "failed", "User email not found.", $this->email);
+                            Audit_generator("login", "failed", "User email not found.", $this->email);
                             throw new Exception("Username/Password Wrong.",401);
                         break;
                         case "pass":
-                            //Audit_generator("login", "failed", "Password incorrect.", $this->email);
+                            Audit_generator("login", "failed", "Password incorrect.", $this->email);
                             throw new Exception("Username/Password Wrong.", 401);
                         break;
 
                         default:
-                            //Audit_generator("login", "failed", "User email not found.", $this->email);
+                            Audit_generator("login", "failed", "User email not found.", $this->email);
                             throw new Exception("No user found with that email address.", 404);
                         break;
                     }
