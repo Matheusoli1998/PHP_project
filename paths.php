@@ -94,6 +94,28 @@
                         // keys: $email, $pass, $username
 
                         break;
+                    case '/audit':
+                        // get audit log
+                        // keys: date
+                    if (session_status() === PHP_SESSION_NONE) throw new Exception("Forbiden request.", 401);
+                    //header("Content-Type: application/json");
+    
+                    $fileRoute = "./audit";
+                    // If a specific date is requested, return the audit log for that date
+                    if (isset($_POST["date"])){
+                        $date = $_POST["date"];
+                        print_r( Audit_parseJson($date));
+                    }else{
+                        // Otherwise, list all available audit files
+                        $allFiles =listFolderFiles($fileRoute);
+    
+                        print_r($allFiles);
+                    }
+    
+                        
+                        
+                        
+                        break;
                     case '/addCat':
                         $userCredentials = getUserCredentials($_POST);
                             if($userCredentials === null || $userCredentials !== 'admin'){
