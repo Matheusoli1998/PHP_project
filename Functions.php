@@ -36,7 +36,8 @@
         }else{
             session_unset();
             session_destroy();
-            throw new Exception("Session timed out/does not exist. Login again",440);
+            // throw new Exception("Session timed out/does not exist. Login again",401);
+            throw new Exception("Your session has expired. Please login again",401);
         }
     }
 
