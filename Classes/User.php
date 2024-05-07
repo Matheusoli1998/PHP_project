@@ -59,10 +59,8 @@
             $data = $dbCon->prepare("SELECT * FROM users_tb WHERE email = ?");
             $data->bind_param("s",$email);
             $data->execute();
-            print_r($email);
             $result = $data->get_result();
 
-            // print_r($result);
 
             if($result->num_rows>0){
                 $data->close();
@@ -76,17 +74,13 @@
             $insertCmd = $dbCon->prepare("INSERT INTO users_tb (username,pass,email) VALUES (?,?,?);");
             $insertCmd->bind_param("sss",$_POST['username'],$hashedPass, $_POST['email']);
 
-            // if (!$insertCmd->execute()) {
-            //     $insertCmd->close();
-            //     $db_connection->db_close();
-            //     throw new Exception("Registration Failed: Unable to register user", 500);
-            // }
+     
             $insertCmd->execute();
 
             $insertCmd->close();
             $db_connection->db_close();
             
-            sendHttp_Code("Record added!",201);
+     
 
 
 

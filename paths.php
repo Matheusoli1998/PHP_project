@@ -69,9 +69,30 @@
                     case '/register':
                         // register user (name, hash password, default type customer)
                         check_key(["username","email", "pass"],$_POST);
+                        
+                        //Validate user input//
+                        // username validation
+                        if(strlen($_POST["username"]) < 3 || strlen($_POST["username"]) > 20){
+                            throw new Exception("Username must be between 3 and 20 characters",400);
+                        }
+
+                        // email validation check the user email input in email format
+                        // if the email is not in email format, throw an exception
+                        if(!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)){
+                            //print_r("Invalid email format");
+                            throw new Exception("Invalid email format",400);
+                        }
+
+                        // password validation
+                        // check if the password is less than 8 characters
+                        if(strlen($_POST["pass"]) < 6){
+                            throw new Exception("Password must be at least 6 characters",400);
+                        }
+
                         $userObj = new User($_POST["email"]); 
                         echo $userObj->register($_POST["email"],$_POST["username"],$_POST["pass"]);
                         // keys: $email, $pass, $username
+
                         break;
                     case '/addCat':
                         $userCredentials = getUserCredentials($_POST);
