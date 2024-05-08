@@ -1,5 +1,5 @@
 <?php
-    class File{
+    class FileUpload{
 
         private $destAddr;
         private $srcFile;
@@ -64,5 +64,56 @@
             return $completeAddr;
 
         }
+    }
+
+    class File{
+        private $src_addr; // Base directory for file operations
+        private $fileAddr;// Full path to the current file
+        function __construct($src_addr)// Constructor to set base directory
+        {
+            $this->src_addr = $src_addr;
+        }
+        function readFile($fileName){ // Read data from a file
+            $this->fileAddr = $this->src_addr."/$fileName";
+            if(file_exists($this->fileAddr)){
+                $file = fopen($this->fileAddr,"r");
+                $data = fread($file,filesize($this->fileAddr));
+                fclose($file);
+                return $data;
+            }else{
+                return false;
+            }
+
+        }
+
+        // Write data to a file, with an option for hard overwrite
+        function writeFile($fileName,$data,$hardWrite = false){
+            $this->fileAddr = $this->src_addr."/$fileName";
+            $writeFlag = "w";
+            if(file_exists($this->fileAddr) && !$hardWrite){
+                $extension = explode(".",$fileName)[1];
+                    switch(strtolower($extension)){
+                        case "txt":
+                            $writeFlag = "a";
+                        break;
+                        case "json":
+                            $this->writeJSON($fileName,$data);
+                            return 0;
+                        break;
+                    }
+            }
+                $file = fopen($this->fileAddr,$writeFlag);
+                fwrite($file,(is_array($data))?json_encode([$data]):$data);
+                fclose($file);
+        }
+
+            // Special method to handle JSON data append operation
+        private function writeJSON($fileName,$data){
+            $prevData = json_decode($this->readFile($fileName));
+            array_push($prevData,$data);
+            $this->writeFile($fileName,json_encode($prevData),true);
+        }
+
+
     }
 ?>

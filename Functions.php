@@ -52,7 +52,7 @@
 
     }
 
-    function generateAudit($eventType,$outcome,$desc,$userEmail=null){
+    function Audit_generator($eventType,$outcome,$desc,$userEmail=null){
         // Compose audit log entry with timestamp, IP, port, user email, event type, outcome, and description
         $aduit = date("Y-m-d H:i:s ",$_SERVER["REQUEST_TIME"]).$_SERVER["REMOTE_ADDR"].":".$_SERVER["REMOTE_PORT"]." $userEmail $eventType $outcome $desc \n";
         $file = new File("./data/audit");

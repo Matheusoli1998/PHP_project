@@ -55,7 +55,7 @@
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
             $db_connexion->connect();
             
-            $this->menuImage = new File($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
+            $this->menuImage = new FileUpload($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
             $this->menuImage = $this->menuImage->uploadFile();
             
             $db_connexion->insert(
@@ -90,7 +90,7 @@
             ];
             
             if($file){
-                $this->menuImage = new File($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
+                $this->menuImage = new FileUpload($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
                 $this->menuImage = $this->menuImage->uploadFile();
                 $cols['menuImage'] = $this->menuImage;
             }

@@ -1,5 +1,6 @@
 # CakePHP 3
-/appFiles
+/appFiles/*
+/data/audit/*
 
 /vendor/*
 /config/app.php

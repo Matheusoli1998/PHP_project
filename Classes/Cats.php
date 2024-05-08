@@ -58,7 +58,7 @@
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
             $db_connexion->connect();
             
-            $this->catImage = new File($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
+            $this->catImage = new FileUpload($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
             $this->catImage = $this->catImage->uploadFile();
             $db_connexion->insert(
                 'cats_tb',
@@ -95,7 +95,7 @@
             ];
             
             if($file){
-                $this->catImage = new File($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
+                $this->catImage = new FileUpload($file,MAX_FILE_SIZE,BACKEND_PICTURES_PATH);
                 $this->catImage = $this->catImage->uploadFile();
                 $cols['catImage'] = $this->catImage;
             }
