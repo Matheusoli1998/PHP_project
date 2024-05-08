@@ -49,7 +49,6 @@
             $db_connexion->connect();
             $db_connexion->delete('cart_tb','uid',$this->uid);
             $db_connexion->db_close();
-
         }
 
         public function addCartItem($data){
@@ -91,6 +90,7 @@
                         sendHttp_Code($data['amount']." Sponsor of $".$data['value']." added to cart",201);
                     }
                 }else{
+                    $db_connexion->db_close();
                     throw new Exception('No sponsor with the value of '.$data['value'].'found',404);
                 }
 
@@ -99,7 +99,20 @@
             $db_connexion->db_close();
         }
 
-        public function removeCartItem(){
+        public function removeCartItem($cid){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+            $item = $db_connexion->select('cart_tb','cid',$cid);
+
+            if($item && $item > 0){
+                $db_connexion->delete('cart_tb','cid',$cid);
+            }else{
+                $db_connexion->db_close();
+                throw new Exception('Unable to find item to remove',404);
+            }
+
+            $db_connexion->db_close();
+
 
         }
     }

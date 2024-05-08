@@ -97,20 +97,20 @@
                     case '/audit':
                         // get audit log
                         // keys: date
-                    if (session_status() === PHP_SESSION_NONE) throw new Exception("Forbiden request.", 401);
-                    //header("Content-Type: application/json");
-    
-                    $fileRoute = "./audit";
-                    // If a specific date is requested, return the audit log for that date
-                    if (isset($_POST["date"])){
-                        $date = $_POST["date"];
-                        print_r( Audit_parseJson($date));
-                    }else{
-                        // Otherwise, list all available audit files
-                        $allFiles =listFolderFiles($fileRoute);
-    
-                        print_r($allFiles);
-                    }
+                        if (session_status() === PHP_SESSION_NONE) throw new Exception("Forbiden request.", 401);
+                        //header("Content-Type: application/json");
+        
+                        $fileRoute = "./audit";
+                        // If a specific date is requested, return the audit log for that date
+                        if (isset($_POST["date"])){
+                            $date = $_POST["date"];
+                            print_r( Audit_parseJson($date));
+                        }else{
+                            // Otherwise, list all available audit files
+                            $allFiles =listFolderFiles($fileRoute);
+        
+                            print_r($allFiles);
+                        }
     
                         
                         
@@ -196,9 +196,8 @@
                             $cat->editCat($_POST['cid'], $file);
                         }
                         break;
-                    case '/saveCart':
-                        // save user cart to database
-                        // keys: array of products
+                    case '/changeQuantity':
+
                         break;
                     case '/importCats':
                         $dbObj = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
@@ -247,15 +246,23 @@
                             sendHttp_Code('Product Deleted Successfully',200);
                         }
                         
-                    break;
+                        break;
                     case '/resetCart':
                         getUserCredentials($_REQUEST);
                         check_key(['uid'],$_REQUEST);
                         $cart = new Cart($_REQUEST['uid']);
                         $cart->resetCart();
+                        sendHttp_Code('Cart reset successfull',200);
+                        break;
+                    case '/removeCartItem':
+                        getUserCredentials($_REQUEST);
+                        check_key(['uid','cid'],$_REQUEST);
+                        $cart = new Cart($_REQUEST['uid']);
+                        $cart->removeCartItem($_REQUEST['cid']);
+                        sendHttp_Code('Item removed successfully',200);
                         break;
                     default:
-                        throw new Exception("No path found", 404);
+                    throw new Exception("No path found", 404);
                 }
             break;
             default:
