@@ -5,9 +5,6 @@
         private $type;
         private $id;
 
-        private $cart;
-        private $favorite;
-
         function __construct($email){
             $this->email = $email;
         }
@@ -15,6 +12,11 @@
         public function getType()
         {
             return $this->type;
+        }
+
+        public function getEmail()
+        {
+            return $this->email;
         }
 
         function login($pass){

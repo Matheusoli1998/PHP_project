@@ -111,10 +111,19 @@
         
                             print_r($allFiles);
                         }
-    
-                        
-                        
-                        
+
+                        break;
+                    case '/logout':
+                        check_key(['sid','email'],$_POST);
+                        $logout = terminate_session($_POST);
+
+                        if($logout){
+                            Audit_generator("logout","success","user request to logout",$_POST['email']);
+                            sendHttp_Code('Logout successfull',200);
+                        } else{
+                            Audit_generator("logout","failed","user request to logout",$_POST['email']);
+                            throw new Exception('Unable to check credentials to terminate session',400);
+                        }
                         break;
                     case '/addCat':
                         $userCredentials = getUserCredentials($_POST);

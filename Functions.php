@@ -41,6 +41,21 @@
         }
     }
 
+    function terminate_session($request){
+
+        session_id($request['sid']);
+        session_start();
+        if(isset($_SESSION['login_user']) && $_SESSION['login_user']->getEmail() === $request['email']){
+            session_unset();
+            session_destroy();
+            return true;
+
+        }
+        else {
+            return false;
+        }
+    }
+
     function getUserCredentials($request){
         if(isset($request["sid"])){
             Session_Hanlder($request["sid"]);
@@ -92,14 +107,14 @@
         return  $auditJson;/// Convert the parsed audit data into JSON format and return it
     }
 
-        // List all files in a given directory
-        function listFolderFiles($fileRoute){
-            $files = scandir($fileRoute); // Scan the directory
-            $files = array_diff($files, array('..', '.'));// Filter out '.' and '..' entries
-            $files = array_values($files); // Reindex array
-            $files = implode("\n", $files);// Convert file list into a newline-separated string
+    // List all files in a given directory
+    function listFolderFiles($fileRoute){
+        $files = scandir($fileRoute); // Scan the directory
+        $files = array_diff($files, array('..', '.'));// Filter out '.' and '..' entries
+        $files = array_values($files); // Reindex array
+        $files = implode("\n", $files);// Convert file list into a newline-separated string
 
 
-            return $files; // Return the list of files
-        }
+        return $files; // Return the list of files
+    }
 ?>
