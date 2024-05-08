@@ -115,6 +115,19 @@
 
 
         }
+
+        public function updateCartItemQuantity($requestObj){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+            $item = $db_connexion->select('cart_tb','cid',$requestObj['cid']);
+            if($item === null || count($item) === 0){
+                $db_connexion->db_close();
+                throw new Exception("Item not found",404);
+            }
+
+            $db_connexion->updateValue('cart_tb',$requestObj['cid'],'cid','amount',$requestObj['amount']);
+            $db_connexion->db_close();
+        }
     }
 
 ?>

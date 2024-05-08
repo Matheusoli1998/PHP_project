@@ -196,8 +196,12 @@
                             $cat->editCat($_POST['cid'], $file);
                         }
                         break;
-                    case '/changeQuantity':
-
+                    case '/changeCartItemQuantity':
+                        getUserCredentials($_POST);
+                        check_key(['uid','cid','amount'],$_POST);
+                        $cart = new Cart($_POST['uid']);
+                        $cart->updateCartItemQuantity($_POST);
+                        http_response_code(200);
                         break;
                     case '/importCats':
                         $dbObj = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);

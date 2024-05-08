@@ -79,6 +79,7 @@
             
             $product = $db_connexion->select('menu_tb','mid',$id);
             if($product === null || count($product) === 0){
+                $db_connexion->db_close();
                 throw new Exception("Product with mid $id not found",404);
             }
 
