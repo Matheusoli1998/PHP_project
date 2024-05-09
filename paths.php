@@ -34,6 +34,11 @@ error_reporting(E_ALL);
                         // get all cats from cats_tb
                         Cats::getCatsList();
                         break;
+                    case '/getCatsWishlist':
+                        // get all cats from cats_tb
+                        check_key(['id'],$_GET);
+                        Cats::getWishListData($_GET['id']);
+                        break;
                     case '/getProducts':
                         // get all products from menu_tb
                         Menu::getMenuList();

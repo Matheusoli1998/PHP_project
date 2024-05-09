@@ -70,18 +70,19 @@
 
         static public function getWishListData($uid){
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
-            $db_connexion->connect();
+            $dbCon = $db_connexion->connect();
+            
    
-            $wishlistData = ["  
-                                SELECT cats_tb.cid, wid, uid, catName, cataAge,catBreed, catDescription,catImage, adoptionStatus 
-                                FROM cats_tb 
-                                INNER Join wishlist_tb on cats_tb.cid = wishlist_tb.cid 
-                                INNER Join users_tb on wishlist_tb.uid = users_tb.id 
-                                WHERE users_tb.id = wishlist_tb.uid
-                                "];
+            $query = "  
+                SELECT cats_tb.cid, wid, uid, catName, cataAge,catBreed, catDescription,catImage, adoptionStatus 
+                FROM cats_tb 
+                INNER Join wishlist_tb on cats_tb.cid = wishlist_tb.cid 
+                INNER Join users_tb on wishlist_tb.uid = users_tb.id 
+                WHERE users_tb.id = $uid
+                ";
+            
+            $getwishlistData = $dbCon->query($query);
       
-            $getwishlistData = $db_connexion->selectJoin('cats_tb','wishlist_tb','cid',$uid,$wishlistData,['cid','wid','uid','catName','cataAge','catBreed','catDescription','catImage','adoptionStatus']);
-
             $getwishlistDetails = [];
       
             if($getwishlistData){
