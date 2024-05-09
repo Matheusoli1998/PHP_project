@@ -54,6 +54,7 @@ error_reporting(E_ALL);
                         check_key(['id'], $_GET);
                      
                         Cats::getWishListItems($_GET['id']);
+                        Cats::getWishListData($_GET['id']);
 
 
                         break;

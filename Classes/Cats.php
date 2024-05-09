@@ -37,25 +37,12 @@
                 "INNER JOIN users_tb ON users_tb.id =wishlist_tb.uid",
                 "INNER JOIN cats_tb ON cats_tb.cid = wishlist_tb.cid",
             ];
-
-            // $wishlistData = ["  
-            //                     SELECT cats_tb.cid, wid, uid, catName, cataAge,catBreed, catDescription,catImage, adoptionStatus 
-            //                     FROM cats_tb 
-            //                     INNER Join wishlist_tb on cats_tb.cid = wishlist_tb.cid 
-            //                     INNER Join users_tb on wishlist_tb.uid = users_tb.id 
-            //                     WHERE users_tb.id = wishlist_tb.uid
-            //                     "];
-      
             $wishlist = $db_connexion->selectJoin('wishlist_tb','users_tb','id',$uid,$wishlistJoins,['wid','cats_tb.cid as cid','users_tb.id as uid']);
             //throw new Exception(count($wishlist), 404);
 
-            // $getwishlistData = $db_connexion->selectJoin('cats_tb','wishlist_tb','cid',$uid,$wishlistData,['cid','wid','uid','catName','cataAge','catBreed','catDescription','catImage','adoptionStatus']);
-
-
-
+          
             $products = [];
-            // $getwishlistDetails = [];
-      
+
       
             if($wishlist){
                 foreach($wishlist as $list){
@@ -63,11 +50,7 @@
                 }
             }
 
-            // if($getwishlistData){
-            //     foreach($getwishlistData as $list){
-            //         array_push($getwishlistDetails,['wid'=>$list['wid'],'uid'=>$list['uid'],'cid'=>$list['cid'],'catName'=>$list['catName'],'cataAge'=>$list['cataAge'],'catBreed'=>$list['catBreed'],'catDescription'=>$list['catDescription'],'catImage'=>$list['catImage'],'adoptionStatus'=>$list['adoptionStatus']]);
-            //     }
-            // }
+
 
             //throw new Exception(json_encode($wishlist), 404);
             if(count($products) > 0){
@@ -79,13 +62,41 @@
             }
 
 
-            // if(count($getwishlistDetails) > 0){
-            //     http_response_code(200);
-            //     print_r(json_encode($products));
-            // } else {
+        
 
-            //    throw new Exception('Nothing found', 404);
-            // }
+            $db_connexion->db_close();
+        }
+
+
+        static public function getWishListData($uid){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+   
+            $wishlistData = ["  
+                                SELECT cats_tb.cid, wid, uid, catName, cataAge,catBreed, catDescription,catImage, adoptionStatus 
+                                FROM cats_tb 
+                                INNER Join wishlist_tb on cats_tb.cid = wishlist_tb.cid 
+                                INNER Join users_tb on wishlist_tb.uid = users_tb.id 
+                                WHERE users_tb.id = wishlist_tb.uid
+                                "];
+      
+            $getwishlistData = $db_connexion->selectJoin('cats_tb','wishlist_tb','cid',$uid,$wishlistData,['cid','wid','uid','catName','cataAge','catBreed','catDescription','catImage','adoptionStatus']);
+
+            $getwishlistDetails = [];
+      
+            if($getwishlistData){
+                foreach($getwishlistData as $list){
+                    array_push($getwishlistDetails,['wid'=>$list['wid'],'uid'=>$list['uid'],'cid'=>$list['cid'],'catName'=>$list['catName'],'cataAge'=>$list['cataAge'],'catBreed'=>$list['catBreed'],'catDescription'=>$list['catDescription'],'catImage'=>$list['catImage'],'adoptionStatus'=>$list['adoptionStatus']]);
+                }
+            }
+
+            if(count($getwishlistDetails) > 0){
+                http_response_code(200);
+                print_r(json_encode($getwishlistDetails));
+            } else {
+
+               throw new Exception('Nothing found', 404);
+            }
 
             $db_connexion->db_close();
         }
