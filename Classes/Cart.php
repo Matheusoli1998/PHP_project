@@ -112,8 +112,6 @@
             }
 
             $db_connexion->db_close();
-
-
         }
 
         public function updateCartItemQuantity($requestObj){
@@ -125,8 +123,13 @@
                 throw new Exception("Item not found",404);
             }
 
-            $db_connexion->updateValue('cart_tb',$requestObj['cid'],'cid','amount',$requestObj['amount']);
-            $db_connexion->db_close();
+            if($requestObj['amount'] <= 0){
+                $this->removeCartItem($requestObj['cid']);
+            } else {
+                $db_connexion->updateValue('cart_tb',$requestObj['cid'],'cid','amount',$requestObj['amount']);
+                $db_connexion->db_close();
+            }
+
         }
     }
 

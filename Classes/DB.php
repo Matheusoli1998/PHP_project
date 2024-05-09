@@ -37,10 +37,8 @@
             $query = "SELECT $cols FROM $tableName";
             $result = $this->db_connect->query($query);
             if($result){
-                // audit
                 return $result->fetch_all(MYSQLI_ASSOC);
             } else {
-                // audit
                 throw new Exception('Unable to get data',500);
             }
         }
@@ -50,10 +48,8 @@
             $query = "SELECT $cols FROM $tableName WHERE $col = $value";
             $result = $this->db_connect->query($query);
             if($result){
-                // audit
                 return $result->fetch_assoc();
             } else {
-                // audit
                 throw new Exception('Unable to get data',500);
             }
         }
@@ -66,7 +62,7 @@
             
             $result = $this->db_connect->query($query);
             
-            if($result->num_rows === 0){
+            if(!$result || $result->num_rows === 0){
                 // throw new Exception('Nothing found',404);
                 return null;
             }
@@ -89,10 +85,8 @@
             $insertCmd->bind_param($dataType, ...$data);
 
             if($insertCmd->execute() === TRUE){
-                // audit
                 return true;
             }else{
-                // audit
                 throw new Exception("Insert Data Error",500);
             }
         }
@@ -108,10 +102,8 @@
             $insertCmd->bind_param($dataType, $value);
 
             if($insertCmd->execute() === TRUE){
-                // audit
                 return true;
             }else{
-                // audit
                 throw new Exception("Update Data Error",500);
             }
         }
@@ -131,10 +123,8 @@
             $insertCmd->bind_param($dataType, ...$values);
 
             if($insertCmd->execute() === TRUE){
-                // audit
                 return true;
             }else{
-                // audit
                 throw new Exception("Update Data Error",500);
             }
         }
@@ -142,10 +132,8 @@
         function delete($tableName,$idColName,$id){
             $query = "DELETE FROM $tableName WHERE $idColName = $id";
             if($this->db_connect->query($query)){
-                // audit
                 return true;
             }else{
-                // audit
                 throw new Exception("Unable to Delete Data",500);
             }
 
@@ -164,7 +152,7 @@
                     "'".$row->cid."'"
                 );
                 
-                if($rowValue->num_rows === 0){
+                if($rowValue && count($rowValue) === 0){
                     $this->insert(
                         'cats_tb',
                         [$row->cid,$row->catName,$row->cataAge,$row->catBreed,$row->catDescription,$row->adoptionStatus,$row->catImage],
@@ -187,7 +175,7 @@
                     "'".$row->mid."'"
                 );
                 
-                if($rowValue->num_rows === 0){
+                if($rowValue && count($rowValue) === 0){
                     $this->insert(
                         'menu_tb',
                         [$row->mid,$row->menuName,$row->menuDescription,$row->menuPrice,$row->menuCategory,$row->menuImage],
@@ -209,7 +197,7 @@
                     'id',
                     "'".$row->id."'"
                 );
-                if($rowValue->num_rows === 0){
+                if($rowValue && count($rowValue) === 0){
                     $hashPass = password_hash($row->pass,PASSWORD_BCRYPT,["cost"=>10]);
                     $type = $row->type ? $row->type : 'customer';
                     $this->insert(

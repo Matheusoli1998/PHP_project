@@ -43,13 +43,27 @@
 
         static public function deleteCat($id){
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
-            $db_connexion->connect();
+            $dbCon = $db_connexion->connect();
             $data = $db_connexion->select('cats_tb','cid',$id);
             
             if($data === null || count($data) === 0){
                 throw new Exception('No cat found with id provided', 404);
             }
+
+            // check if any wishlist has the cat to be removed
+            $query = "SELECT * FROM wishlist_tb WHERE cid = $id";
+            $wishlist = $dbCon->query($query);
             
+            if($wishlist && $wishlist->num_rows > 0){
+                $items = $wishlist->fetch_all(MYSQLI_ASSOC);
+                
+                // remove wishlist entry that have the product
+                foreach ($items as $item) {
+                    $db_connexion->delete('wishlist_tb','cid',$item['cid']);
+                }
+            }
+
+            // remove cat
             $db_connexion->delete('cats_tb','cid',$id);
             $db_connexion->db_close();
         }
