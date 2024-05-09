@@ -36,9 +36,9 @@ Features
 
     Favorites: Save cats you’re interested in to your favorites list for easy access later.
 
-## Screenshots
 
-<img src="" />## Built With
+
+## Built With
 
 <a href="https://www.php.net/docs.php"><img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/php/php-original.svg" height="40px" width="40px" /></a><a href="https://reactjs.org/"><img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original-wordmark.svg" height="40px" width="40px" /></a>
 
