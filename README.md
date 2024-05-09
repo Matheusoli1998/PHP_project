@@ -24,7 +24,7 @@ Cat Café Adoption App
 Description:
 
 The Cat Café Adoption App is a web application designed to simplify the process of adopting cats from cat cafés. 
-Built with React for the frontend and PHP for the backend, this APP offers a seamless user experience and comprehensive features to facilitate cat adoptions.
+Built with React for the front end and PHP for the back end, this app offers a seamless user experience and comprehensive features to facilitate cat adoptions.
 
 
 
@@ -34,7 +34,7 @@ Features
 
     Adoption Process: Follow a step-by-step guide through the adoption process, from initial interest to bringing your new feline friend home.
 
-    Favorites: Save cats you’re interested in to your favorites list for easy access later.
+    Favorites: Save cats you’re interested into your favorites list for easy access later.
 
 
 
