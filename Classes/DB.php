@@ -46,9 +46,12 @@
         }
 
         function select($tableName,$col,$value, $columNames=null){
+
             $cols = isset($columNames) ? implode(" , ",$columNames) : '*';
             $query = "SELECT $cols FROM $tableName WHERE $col = $value";
+            throw new Exception($query,500);
             $result = $this->db_connect->query($query);
+
             if($result){
                 // audit
                 return $result->fetch_assoc();
@@ -63,10 +66,12 @@
             $joins = implode(" ", $joins);
 
             $query = "SELECT $cols FROM $left_table $joins WHERE $joinTable.$joinCol = $value";
+
+            //throw new Exception( $query,500);
             
             $result = $this->db_connect->query($query);
             
-            if($result->num_rows === 0){
+            if(!$result || $result->num_rows === 0){
                 // throw new Exception('Nothing found',404);
                 return null;
             }

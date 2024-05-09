@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
     require('./config.php');
     require('./Classes/DB.php');
     require('./Classes/Cats.php');
@@ -43,6 +46,11 @@
                     case '/whishlist':
                         // gets user wishlist
                         // keys: user id
+                        check_key(['id'], $_GET);
+                     
+                        Cats::getWishListItems($_GET['id']);
+
+
                         break;
                     case '/cart':
                         check_key(['uid'], $_GET);
@@ -165,6 +173,12 @@
                         $cart = new Cart($_POST['uid']);
                         $cart->addCartItem($_POST);
                         break;
+                    case '/addWishListItem':
+                            check_key(['uid','cid'], $_POST);
+                            getUserCredentials($_POST);
+                            Cats::updateWishListItems($_POST);
+                         
+                            break;
                     case '/editProduct':
                         $userCredentials = getUserCredentials($_POST);
                         if($userCredentials === null || $userCredentials !== 'admin'){

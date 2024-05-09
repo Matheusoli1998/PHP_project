@@ -8,6 +8,7 @@
         private $catImage;
         private $favorite;
         private $id;
+        private $uid;
 
         function __construct($obj)
         {
@@ -16,6 +17,7 @@
             $this->catBreed = $obj['catBreed'];
             $this->catDescription = $obj['catDescription'];
             $this->adoptionStatus = $obj['adoptionStatus'];
+            $this->uid = $obj['uid'];
         }
 
         static public function getCatsList(){
@@ -26,6 +28,40 @@
             http_response_code(200);
             print_r(json_encode($data));
         }
+
+
+        static public function getWishListItems($uid){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+            $db_connexion->connect();
+            $wishlistJoins = [
+                "INNER JOIN users_tb ON users_tb.id =wishlist_tb.uid",
+                "INNER JOIN cats_tb ON cats_tb.cid = wishlist_tb.cid",
+            ];
+      
+            $wishlist = $db_connexion->selectJoin('wishlist_tb','users_tb','id',$uid,$wishlistJoins,['wid','cats_tb.cid as cid','users_tb.id as uid']);
+            //throw new Exception(count($wishlist), 404);
+
+            $products = [];
+      
+      
+            if($wishlist){
+                foreach($wishlist as $list){
+                    array_push($products,['wid'=>$list['wid'],'uid'=>$list['uid'],'cid'=>$list['cid']]);
+                }
+            }
+
+            //throw new Exception(json_encode($wishlist), 404);
+            if(count($products) > 0){
+                http_response_code(200);
+                print_r(json_encode($products));
+            } else {
+
+               // throw new Exception('Nothing found', 404);
+            }
+
+            $db_connexion->db_close();
+        }
+
 
         static public function searchCat($id){
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
@@ -39,6 +75,33 @@
                 http_response_code(200);
                 print_r(json_encode($data));
             }
+        }
+
+        static public function updateWishListItems($post){
+            $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
+         
+            $dbCon=$db_connexion->connect();
+          
+            $query = "SELECT * FROM wishlist_tb WHERE uid = ".$post['uid']." AND cid = ".$post['cid'];
+            $result = $dbCon->query($query);
+            if($result === null || $result->num_rows === 0){
+
+
+                $db_connexion->insert('wishlist_tb',[$post['uid'],$post['cid']],['uid','cid']);
+                
+                 sendHttp_Code('Cat Added to wishlist',200);
+                
+                
+                //throw new Exception('No item found with id provided', 404);
+            }else{
+                $db_connexion->delete('wishlist_tb','wid',$post['wid']);
+                sendHttp_Code('Cat remove from wishlist',200);
+            }
+
+            $db_connexion->db_close();
+            // sendHttp_Code('Cat Added to database Successfully',200);
+
+
         }
 
         static public function deleteCat($id){
