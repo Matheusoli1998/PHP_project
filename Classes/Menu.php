@@ -40,13 +40,27 @@
 
         static public function deleteProduct($id){
             $db_connexion = new DB(DB_SERVER_NAME,DB_USER,DB_PASSWORD,DB_NAME);
-            $db_connexion->connect();
+            $dbCon = $db_connexion->connect();
             $data = $db_connexion->select('menu_tb','mid',$id);
             
             if($data === null || count($data) === 0){
                 throw new Exception('No product found with id provided', 404);
             }
             
+            // check if any cart has the product to be removed
+            $query = "SELECT * FROM cart_tb WHERE mid = $id";
+            $cart = $dbCon->query($query);
+            
+            if($cart && $cart->num_rows > 0){
+                $items = $cart->fetch_all(MYSQLI_ASSOC);
+                
+                // remove cart entry that have the product
+                foreach ($items as $item) {
+                    $db_connexion->delete('cart_tb','mid',$item['mid']);
+                }
+            }
+
+            // remove product
             $db_connexion->delete('menu_tb','mid',$id);
             $db_connexion->db_close();
         }
