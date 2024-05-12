@@ -47,7 +47,7 @@
 
             $cols = isset($columNames) ? implode(" , ",$columNames) : '*';
             $query = "SELECT $cols FROM $tableName WHERE $col = $value";
-            throw new Exception($query,500);
+            
             $result = $this->db_connect->query($query);
 
             if($result){
